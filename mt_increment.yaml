@@ -1,0 +1,16 @@
+initial_state: q0
+final_states: [qf]
+blank_symbol: 'B'
+
+transitions:
+  # Scan to the right end of the tape
+  q0:
+    '0': {write: '0', move: R, next_state: q0}
+    '1': {write: '1', move: R, next_state: q0}
+    'B': {write: 'B', move: L, next_state: q1}
+
+  # Move left and flip the last digit
+  q1:
+    '0': {write: '1', move: L, next_state: qf}
+    '1': {write: '0', move: L, next_state: q1}
+    'B': {write: '1', move: L, next_state: qf}

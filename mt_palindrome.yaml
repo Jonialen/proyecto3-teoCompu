@@ -1,0 +1,37 @@
+initial_state: q0
+final_states: [q_accept]
+blank_symbol: 'B'
+
+transitions:
+  q0:
+    '0': {write: 'B', move: R, next_state: q_find_last_0}
+    '1': {write: 'B', move: R, next_state: q_find_last_1}
+    'B': {write: 'B', move: R, next_state: q_accept} # Empty string is a palindrome
+
+  q_find_last_0:
+    '0': {write: '0', move: R, next_state: q_find_last_0}
+    '1': {write: '1', move: R, next_state: q_find_last_0}
+    'B': {write: 'B', move: L, next_state: q_check_last_0}
+
+  q_find_last_1:
+    '0': {write: '0', move: R, next_state: q_find_last_1}
+    '1': {write: '1', move: R, next_state: q_find_last_1}
+    'B': {write: 'B', move: L, next_state: q_check_last_1}
+
+  q_check_last_0:
+    '0': {write: 'B', move: L, next_state: q_return_to_start}
+    '1': {write: '1', move: L, next_state: q_reject}
+    'B': {write: 'B', move: R, next_state: q_accept} # Palindrome of odd length
+
+  q_check_last_1:
+    '0': {write: '0', move: L, next_state: q_reject}
+    '1': {write: 'B', move: L, next_state: q_return_to_start}
+    'B': {write: 'B', move: R, next_state: q_accept} # Palindrome of odd length
+
+  q_return_to_start:
+    '0': {write: '0', move: L, next_state: q_return_to_start}
+    '1': {write: '1', move: L, next_state: q_return_to_start}
+    'B': {write: 'B', move: R, next_state: q0}
+
+  q_accept:
+  q_reject:
