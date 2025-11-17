@@ -1,7 +1,7 @@
 """
 Turing Machine - Representación de la Máquina de Turing
 """
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple
 
 
 class TuringMachine:
