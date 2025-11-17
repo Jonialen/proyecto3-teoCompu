@@ -1,0 +1,443 @@
+# Máquina de Turing Duplicadora CORREGIDA Y FUNCIONAL
+# Transforma: "abc" → "abc#abc" (preservando la cadena original)
+# Estrategia: Usa marcadores temporales A y B que luego restaura a minúsculas
+
+q_states:
+  q_list:
+    - "q0"      # Ir al final de la cadena
+    - "q1"      # Escribir separador '#'
+    - "q2"      # Volver al inicio después de '#'
+    - "q3"      # Buscar siguiente símbolo a copiar
+    - "q4"      # Ir al final con 'a' en memoria
+    - "q5"      # Ir al final con 'b' en memoria
+    - "q6"      # Volver al inicio después de copiar
+    - "q7"      # Restaurar símbolos marcados
+    - "qf"      # Estado final
+  initial: "q0"
+  final: "qf"
+
+alphabet:
+  - a
+  - b
+
+tape_alphabet:
+  - a
+  - b
+  - "#"       # Separador entre cadena original y copia
+  - A         # Marca temporal para 'a'
+  - B         # Marca temporal para 'b'
+  -           # blank
+
+delta:
+  # ========================================================================
+  # FASE 1: Ir al final de la cadena original
+  # ========================================================================
+  
+  - params:
+      initial_state: "q0"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q0"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: R
+
+  - params:
+      initial_state: "q0"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q0"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: R
+
+  # Llegamos al final (blank) -> escribir separador '#'
+  - params:
+      initial_state: "q0"
+      mem_cache_value: ""
+      tape_input:
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: "#"
+      tape_displacement: L
+
+  # ========================================================================
+  # FASE 2: Volver al inicio después de escribir '#'
+  # ========================================================================
+  
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: L
+
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: L
+
+  # Llegamos al inicio (blank) -> ir a q2
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input:
+    output:
+      final_state: "q2"
+      mem_cache_value: ""
+      tape_output:
+      tape_displacement: R
+
+  # ========================================================================
+  # FASE 3: Desde q2 mover al primer símbolo para empezar a copiar
+  # ========================================================================
+  
+  - params:
+      initial_state: "q2"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: S
+
+  - params:
+      initial_state: "q2"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: S
+
+  # ========================================================================
+  # FASE 4: Buscar siguiente símbolo a copiar
+  # ========================================================================
+  
+  # Saltar marcas temporales ya procesadas
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input: A
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output: A
+      tape_displacement: R
+
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input: B
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output: B
+      tape_displacement: R
+
+  # Encontrar 'a' sin procesar -> marcar como 'A' y recordar
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q4"
+      mem_cache_value: "a"
+      tape_output: A
+      tape_displacement: R
+
+  # Encontrar 'b' sin procesar -> marcar como 'B' y recordar
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q5"
+      mem_cache_value: "b"
+      tape_output: B
+      tape_displacement: R
+
+  # Todos los símbolos copiados (encontramos '#') -> ir a restaurar
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input: "#"
+    output:
+      final_state: "q7"
+      mem_cache_value: ""
+      tape_output: "#"
+      tape_displacement: L
+
+  # ========================================================================
+  # FASE 5a: Ir al final con 'a' en memoria
+  # ========================================================================
+  
+  - params:
+      initial_state: "q4"
+      mem_cache_value: "a"
+      tape_input: a
+    output:
+      final_state: "q4"
+      mem_cache_value: "a"
+      tape_output: a
+      tape_displacement: R
+
+  - params:
+      initial_state: "q4"
+      mem_cache_value: "a"
+      tape_input: b
+    output:
+      final_state: "q4"
+      mem_cache_value: "a"
+      tape_output: b
+      tape_displacement: R
+
+  - params:
+      initial_state: "q4"
+      mem_cache_value: "a"
+      tape_input: A
+    output:
+      final_state: "q4"
+      mem_cache_value: "a"
+      tape_output: A
+      tape_displacement: R
+
+  - params:
+      initial_state: "q4"
+      mem_cache_value: "a"
+      tape_input: B
+    output:
+      final_state: "q4"
+      mem_cache_value: "a"
+      tape_output: B
+      tape_displacement: R
+
+  - params:
+      initial_state: "q4"
+      mem_cache_value: "a"
+      tape_input: "#"
+    output:
+      final_state: "q4"
+      mem_cache_value: "a"
+      tape_output: "#"
+      tape_displacement: R
+
+  # Escribir 'a' al final (encontramos blank)
+  - params:
+      initial_state: "q4"
+      mem_cache_value: "a"
+      tape_input:
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: L
+
+  # ========================================================================
+  # FASE 5b: Ir al final con 'b' en memoria
+  # ========================================================================
+  
+  - params:
+      initial_state: "q5"
+      mem_cache_value: "b"
+      tape_input: a
+    output:
+      final_state: "q5"
+      mem_cache_value: "b"
+      tape_output: a
+      tape_displacement: R
+
+  - params:
+      initial_state: "q5"
+      mem_cache_value: "b"
+      tape_input: b
+    output:
+      final_state: "q5"
+      mem_cache_value: "b"
+      tape_output: b
+      tape_displacement: R
+
+  - params:
+      initial_state: "q5"
+      mem_cache_value: "b"
+      tape_input: A
+    output:
+      final_state: "q5"
+      mem_cache_value: "b"
+      tape_output: A
+      tape_displacement: R
+
+  - params:
+      initial_state: "q5"
+      mem_cache_value: "b"
+      tape_input: B
+    output:
+      final_state: "q5"
+      mem_cache_value: "b"
+      tape_output: B
+      tape_displacement: R
+
+  - params:
+      initial_state: "q5"
+      mem_cache_value: "b"
+      tape_input: "#"
+    output:
+      final_state: "q5"
+      mem_cache_value: "b"
+      tape_output: "#"
+      tape_displacement: R
+
+  # Escribir 'b' al final (encontramos blank)
+  - params:
+      initial_state: "q5"
+      mem_cache_value: "b"
+      tape_input:
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: L
+
+  # ========================================================================
+  # FASE 6: Volver al inicio después de escribir un símbolo
+  # ========================================================================
+  
+  - params:
+      initial_state: "q6"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: L
+
+  - params:
+      initial_state: "q6"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: L
+
+  - params:
+      initial_state: "q6"
+      mem_cache_value: ""
+      tape_input: "#"
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: "#"
+      tape_displacement: L
+
+  - params:
+      initial_state: "q6"
+      mem_cache_value: ""
+      tape_input: A
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: A
+      tape_displacement: L
+
+  - params:
+      initial_state: "q6"
+      mem_cache_value: ""
+      tape_input: B
+    output:
+      final_state: "q6"
+      mem_cache_value: ""
+      tape_output: B
+      tape_displacement: L
+
+  # Llegamos al inicio (blank) -> buscar siguiente símbolo a copiar
+  - params:
+      initial_state: "q6"
+      mem_cache_value: ""
+      tape_input:
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output:
+      tape_displacement: R
+
+  # ========================================================================
+  # FASE 7: Restaurar marcas temporales (A→a, B→b)
+  # ========================================================================
+  
+  # Restaurar 'A' a 'a'
+  - params:
+      initial_state: "q7"
+      mem_cache_value: ""
+      tape_input: A
+    output:
+      final_state: "q7"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: L
+
+  # Restaurar 'B' a 'b'
+  - params:
+      initial_state: "q7"
+      mem_cache_value: ""
+      tape_input: B
+    output:
+      final_state: "q7"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: L
+
+  # Pasar sobre símbolos ya restaurados
+  - params:
+      initial_state: "q7"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q7"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: L
+
+  - params:
+      initial_state: "q7"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q7"
+      mem_cache_value: ""
+      tape_output: b
+      tape_displacement: L
+
+  # Llegamos al inicio (blank) -> finalizar
+  - params:
+      initial_state: "q7"
+      mem_cache_value: ""
+      tape_input:
+    output:
+      final_state: "qf"
+      mem_cache_value: ""
+      tape_output:
+      tape_displacement: R
+
+simulation_strings:
+  - aabba   # → aabba#aabba
+  - bbbaa   # → bbbaa#bbbaa
+  - aaabbb  # → aaabbb#aaabbb
+  - ababab  # → ababab#ababab
+  - a       # → a#a
+  - b       # → b#b
