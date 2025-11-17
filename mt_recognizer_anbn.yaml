@@ -1,0 +1,207 @@
+# Máquina de Turing Reconocedora MEJORADA para L = {a^n b^n | n ≥ 1}
+# Mejoras:
+# 1. Validación de formato (rechaza si no es a*b*)
+# 2. Rechaza cadena vacía
+# 3. Rechaza si n=0 (debe ser n≥1)
+# 4. Maneja casos especiales más eficientemente
+
+q_states:
+  q_list:
+    - "q0" # Estado inicial
+    - "q1" # Marca 'a' y busca 'b'
+    - "q2" # Encontró 'b', regresa al inicio
+    - "q3" # Verificación final (solo Y's)
+    - "q_check" # Verifica formato inicial (que sea a+b+)
+    - "qf" # Estado final (aceptación)
+  initial: "q0"
+  final: "qf"
+
+alphabet:
+  - a
+  - b
+
+tape_alphabet:
+  - a
+  - b
+  - X # Marca para 'a' procesada
+  - Y # Marca para 'b' procesada
+  -  # blank
+
+delta:
+  # ==== VALIDACIÓN INICIAL: Verificar que hay al menos una 'a' ====
+
+  # Rechazar cadena vacía (blank inmediato)
+  # (No hay transición desde q0 con blank → rechaza automáticamente)
+
+  # Rechazar si empieza con 'b' (formato incorrecto)
+  # (No hay transición desde q0 con 'b' → rechaza automáticamente)
+
+  # ==== ESTADO q0: Buscar primera 'a' sin marcar ====
+
+  # Saltar X's ya marcadas
+  - params:
+      initial_state: "q0"
+      mem_cache_value: ""
+      tape_input: X
+    output:
+      final_state: "q0"
+      mem_cache_value: ""
+      tape_output: X
+      tape_displacement: R
+
+  # Encontrar 'a' sin marcar -> marcarla con X e ir a buscar 'b'
+  - params:
+      initial_state: "q0"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: X
+      tape_displacement: R
+
+  # Si encontramos Y sin haber encontrado 'a', verificar si terminamos
+  - params:
+      initial_state: "q0"
+      mem_cache_value: ""
+      tape_input: Y
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output: Y
+      tape_displacement: R
+
+  # ==== ESTADO q1: Buscar 'b' correspondiente ====
+
+  # Pasar sobre 'a's sin marcar
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: R
+
+  # Pasar sobre X's (a's ya marcadas)
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input: X
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: X
+      tape_displacement: R
+
+  # Pasar sobre Y's (b's ya marcadas)
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input: Y
+    output:
+      final_state: "q1"
+      mem_cache_value: ""
+      tape_output: Y
+      tape_displacement: R
+
+  # Encontrar 'b' sin marcar -> marcarla con Y y regresar
+  - params:
+      initial_state: "q1"
+      mem_cache_value: ""
+      tape_input: b
+    output:
+      final_state: "q2"
+      mem_cache_value: ""
+      tape_output: Y
+      tape_displacement: L
+
+  # Si encontramos blank sin encontrar 'b' -> RECHAZAR
+  # (No hay transición q1 + blank → rechaza automáticamente)
+
+  # ==== ESTADO q2: Regresar al inicio ====
+
+  # Regresar sobre 'a's
+  - params:
+      initial_state: "q2"
+      mem_cache_value: ""
+      tape_input: a
+    output:
+      final_state: "q2"
+      mem_cache_value: ""
+      tape_output: a
+      tape_displacement: L
+
+  # Regresar sobre X's
+  - params:
+      initial_state: "q2"
+      mem_cache_value: ""
+      tape_input: X
+    output:
+      final_state: "q2"
+      mem_cache_value: ""
+      tape_output: X
+      tape_displacement: L
+
+  # Regresar sobre Y's
+  - params:
+      initial_state: "q2"
+      mem_cache_value: ""
+      tape_input: Y
+    output:
+      final_state: "q2"
+      mem_cache_value: ""
+      tape_output: Y
+      tape_displacement: L
+
+  # Llegamos al inicio (blank) -> ir a q0
+  - params:
+      initial_state: "q2"
+      mem_cache_value: ""
+      tape_input:
+    output:
+      final_state: "q0"
+      mem_cache_value: ""
+      tape_output:
+      tape_displacement: R
+
+  # ==== ESTADO q3: Verificación final ====
+
+  # Verificar que solo haya Y's hasta el final
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input: Y
+    output:
+      final_state: "q3"
+      mem_cache_value: ""
+      tape_output: Y
+      tape_displacement: R
+
+  # Si llegamos al blank después de solo Y's -> ACEPTAR
+  - params:
+      initial_state: "q3"
+      mem_cache_value: ""
+      tape_input:
+    output:
+      final_state: "qf"
+      mem_cache_value: ""
+      tape_output:
+      tape_displacement: S
+
+  # Si encontramos 'a' o 'b' sin marcar en verificación -> RECHAZAR
+  # (No hay transición q3 + a/b → rechaza automáticamente)
+
+simulation_strings:
+  # ===== CADENAS ACEPTADAS =====
+  - aaaaabbbbb # n=5: perfectamente balanceadas ✓
+  - aaaaaabbbbbb # n=6: perfectamente balanceadas ✓
+
+  # ===== CADENAS RECHAZADAS =====
+  - aaaaabbbbbb # 5 a's, 6 b's (más b's) ✗
+  - aaaaaabbbbb # 6 a's, 5 b's (más a's) ✗
+  - bbbbaaa # Orden incorrecto (b's primero) ✗
+  - aababa # Intercaladas (no formato a*b*) ✗
+  - aaaaa # Solo a's, sin b's ✗
+  - bbbbb # Solo b's, sin a's ✗
