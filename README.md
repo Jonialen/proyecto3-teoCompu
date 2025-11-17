@@ -1,5 +1,8 @@
 # Turing Machine Simulator
 
+##REPO LINK
+https://github.com/Jonialen/proyecto3-teoCompu.git
+
 This project is a Turing Machine simulator implemented in Python. It can load machine definitions from YAML files, validate them, and execute them on a given input tape.
 
 ## How to Use
