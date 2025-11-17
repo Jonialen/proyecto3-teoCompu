@@ -1,6 +1,6 @@
 # Turing Machine Simulator
 
-##REPO LINK
+## REPO LINK
 https://github.com/Jonialen/proyecto3-teoCompu.git
 
 This project is a Turing Machine simulator implemented in Python. It can load machine definitions from YAML files, validate them, and execute them on a given input tape.
@@ -59,6 +59,6 @@ This will output the result of the simulation, which should be `1100`.
 - **`mt_palindrome.yaml`:** This machine recognizes palindromic strings of `0`s and `1`s (e.g., `101101`).
 - **`test_invalid.yaml`:** This is an example of an invalid machine definition, used for testing the validator.
 
-### Video
+## Video
 
 https://youtu.be/8ACE0a76oSM
